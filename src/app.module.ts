@@ -1,10 +1,15 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { TodoListsModule } from './todolists/todolist.module';
+import { ConfigModule } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
+  imports: [
+    ConfigModule.forRoot({ envFilePath: '.env' }),
+    MongooseModule.forRoot(process.env.MONGO_CONNECT),
+    TodoListsModule,
+  ],
 })
 export class AppModule {}
