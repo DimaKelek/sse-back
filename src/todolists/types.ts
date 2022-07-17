@@ -17,3 +17,8 @@ export type TodoListDtoType = {
   numberOfTasks: number;
   title: string;
 };
+
+export type CreateTodoListDtoType = Omit<
+  TodoListDtoType,
+  'isLike' | 'completedTasks' | 'numberOfTasks'
+>;
