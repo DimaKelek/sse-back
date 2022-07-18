@@ -12,10 +12,10 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { TodoListsService } from './todolists.service';
-import { TodoList } from '../mongoDB/TodoList/schema';
+import { TodoList } from '../../mongoDB/TodoList/schema';
 import { TodoListDtoType } from './types';
 
-@Controller('todolists')
+@Controller('Todolists')
 @UsePipes(new ValidationPipe())
 export class TodoListsController {
   constructor(private readonly todoListService: TodoListsService) {}

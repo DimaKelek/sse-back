@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TodoListsController } from './todolists.controller';
 import { TodoListsService } from './todolists.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { TodoList, TodoListSchema } from '../mongoDB/TodoList/schema';
+import { TodoList, TodoListSchema } from '../../mongoDB/TodoList/schema';
 
 @Module({
   controllers: [TodoListsController],

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTodoListDtoType, TodoListDtoType } from './types';
 import { InjectModel } from '@nestjs/mongoose';
-import { TodoList, TodoListDocument } from '../mongoDB/TodoList/schema';
+import { TodoList, TodoListDocument } from '../../mongoDB/TodoList/schema';
 import { Model } from 'mongoose';
 
 @Injectable()
