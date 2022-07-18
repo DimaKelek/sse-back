@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { TodoListsModule } from './todolists/todolist.module';
+import { TodoListsModule } from './modules/Todolists/todolist.module';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './users/user.module';
+import { AuthModule } from './modules/Authorization/auth.module';
+import { UserModule } from './modules/Users/user.module';
 
 @Module({
   controllers: [],
