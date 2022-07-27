@@ -9,3 +9,7 @@ export type TokenInfoType = Pick<
   CreatedUserType,
   'id' | 'email' | 'name' | 'role'
 >;
+
+export type RegistrationResponseType = GenerateTokenReturnType & {
+  user: CreatedUserType;
+};

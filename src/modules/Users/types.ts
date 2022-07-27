@@ -1,4 +1,5 @@
 import { UserRoles } from '../Todolists/types';
+import { ObjectId } from 'mongoose';
 
 export type RegistrationUserDtoType = {
   email: string;
@@ -8,5 +9,5 @@ export type RegistrationUserDtoType = {
 };
 
 export type CreatedUserType = RegistrationUserDtoType & {
-  id: string;
+  id: ObjectId;
 };

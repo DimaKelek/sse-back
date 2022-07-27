@@ -1,47 +1,49 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserService } from '../Users/user.service';
-import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { UserRoles } from '../Todolists/types';
 import { EXCEPTIONS } from '../../common/constants/strings';
-import { CreatedUserType, RegistrationUserDtoType } from '../Users/types';
-import { GenerateTokenReturnType, TokenInfoType } from './types';
+import { RegistrationUserDtoType } from '../Users/types';
+import { RegistrationResponseType } from './types';
+import { TokensService } from '../Tokens/tokens.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
-    private jwtService: JwtService,
+    private tokensService: TokensService,
   ) {}
 
   async registration(
     userDto: RegistrationUserDtoType,
-  ): Promise<GenerateTokenReturnType> {
+  ): Promise<RegistrationResponseType> {
     const currentUser = await this.userService.getUserByEmail(userDto.email);
 
     if (currentUser) {
       throw new HttpException(EXCEPTIONS.userExist, HttpStatus.BAD_REQUEST);
     }
 
-    const hashPassword = await bcrypt.hash(userDto.password, 5);
-    const newUser = await this.userService.createUser({
-      ...userDto,
-      role: userDto.role ?? UserRoles.User,
-      password: hashPassword,
-    });
+    try {
+      const hashPassword = await bcrypt.hash(userDto.password, 5);
+      const newUser = await this.userService.createUser({
+        ...userDto,
+        role: userDto.role ?? UserRoles.User,
+        password: hashPassword,
+      });
 
-    return this.generateTokens(newUser);
-  }
+      const tokens = await this.tokensService.generateTokens(newUser);
+      await this.tokensService.saveRefreshToken(
+        newUser.id,
+        tokens.refreshToken,
+      );
 
-  async generateTokens(
-    newUser: CreatedUserType,
-  ): Promise<GenerateTokenReturnType> {
-    const { id, email, name, role } = newUser;
-    const payload: TokenInfoType = { id, email, name, role };
-
-    return {
-      accessToken: this.jwtService.sign(payload, { expiresIn: '10m' }),
-      refreshToken: this.jwtService.sign(payload, { expiresIn: '30d' }),
-    };
+      return {
+        ...tokens,
+        user: newUser,
+      };
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('### Some error', error);
+    }
   }
 }

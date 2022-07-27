@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreatedUserType } from '../Users/types';
-import { GenerateTokenReturnType } from './types';
+import { RegistrationResponseType } from './types';
 
 @Controller('auth')
 @UsePipes(new ValidationPipe())
@@ -17,7 +17,7 @@ export class AuthController {
   @Post('/registration')
   registration(
     @Body() userDto: CreatedUserType,
-  ): Promise<GenerateTokenReturnType> {
+  ): Promise<RegistrationResponseType> {
     return this.authService.registration(userDto);
   }
 }
