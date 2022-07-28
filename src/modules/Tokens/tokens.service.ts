@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreatedUserType } from '../Users/types';
 import { GenerateTokenReturnType, TokenInfoType } from '../Authorization/types';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Tokens, TokensDocument } from '../../mongoDB/Tokens/schema';
-import { TokensDataType } from './types';
+import { TokensDataType, TokensMessages } from './types';
+import { MessageResponseType } from '../../types/defaultTypes';
+import { EXCEPTIONS } from '../../common/constants/strings';
 
 @Injectable()
 export class TokensService {
@@ -45,5 +47,24 @@ export class TokensService {
       // eslint-disable-next-line no-console
       console.error('### Some error', error);
     }
+  }
+
+  async removeTokens(
+    refreshToken: string,
+  ): Promise<MessageResponseType | void> {
+    const removedInfo = await this.tokensModel.deleteOne({
+      refreshToken,
+    });
+
+    if (removedInfo.acknowledged && removedInfo.deletedCount > 0) {
+      return {
+        message: TokensMessages.Removed,
+      };
+    }
+
+    throw new HttpException(
+      EXCEPTIONS.TokenIsNotFound,
+      HttpStatus.UNAUTHORIZED,
+    );
   }
 }

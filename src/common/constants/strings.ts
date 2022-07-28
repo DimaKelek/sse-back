@@ -1,3 +1,5 @@
-export const EXCEPTIONS = {
-  userExist: 'The user already exists',
-};
+export enum EXCEPTIONS {
+  UserExist = 'The user already exists',
+  UserIsNotAuthorized = `The user isn't authorized`,
+  TokenIsNotFound = `The token wasn't found`,
+}

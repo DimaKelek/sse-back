@@ -6,6 +6,7 @@ import { EXCEPTIONS } from '../../common/constants/strings';
 import { RegistrationUserDtoType } from '../Users/types';
 import { RegistrationResponseType } from './types';
 import { TokensService } from '../Tokens/tokens.service';
+import { MessageResponseType } from '../../types/defaultTypes';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +21,7 @@ export class AuthService {
     const currentUser = await this.userService.getUserByEmail(userDto.email);
 
     if (currentUser) {
-      throw new HttpException(EXCEPTIONS.userExist, HttpStatus.BAD_REQUEST);
+      throw new HttpException(EXCEPTIONS.UserExist, HttpStatus.BAD_REQUEST);
     }
 
     try {
@@ -44,5 +45,9 @@ export class AuthService {
       // eslint-disable-next-line no-console
       console.error('### Some error', error);
     }
+  }
+
+  async signOut(refreshToken: string): Promise<MessageResponseType | void> {
+    return await this.tokensService.removeTokens(refreshToken);
   }
 }
