@@ -5,7 +5,7 @@ import * as bcrypt from 'bcryptjs';
 import { UserRoles } from '../Todolists/types';
 import { EXCEPTIONS } from '../../common/constants/strings';
 import { CreatedUserType, RegistrationUserDtoType } from '../Users/types';
-import { GenerateTokenReturnType } from './types';
+import { GenerateTokenReturnType, TokenInfoType } from './types';
 
 @Injectable()
 export class AuthService {
@@ -30,14 +30,18 @@ export class AuthService {
       password: hashPassword,
     });
 
-    return this.generateToken(newUser);
+    return this.generateTokens(newUser);
   }
 
-  async generateToken(
+  async generateTokens(
     newUser: CreatedUserType,
   ): Promise<GenerateTokenReturnType> {
+    const { id, email, name, role } = newUser;
+    const payload: TokenInfoType = { id, email, name, role };
+
     return {
-      accessToken: this.jwtService.sign({ ...newUser }),
+      accessToken: this.jwtService.sign(payload, { expiresIn: '10m' }),
+      refreshToken: this.jwtService.sign(payload, { expiresIn: '30d' }),
     };
   }
 }
