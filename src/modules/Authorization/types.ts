@@ -7,9 +7,9 @@ export type GenerateTokenReturnType = {
 
 export type TokenInfoType = Pick<
   CreatedUserType,
-  'id' | 'email' | 'name' | 'role'
+  'id' | 'email' | 'fullName' | 'role'
 >;
 
 export type RegistrationResponseType = GenerateTokenReturnType & {
-  user: CreatedUserType;
+  user: Omit<CreatedUserType, 'password'>;
 };

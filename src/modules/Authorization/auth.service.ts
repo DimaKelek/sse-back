@@ -28,18 +28,17 @@ export class AuthService {
       const newUser = await this.userService.createUser({
         ...userDto,
         role: userDto.role ?? UserRoles.User,
+        photo: userDto.photo ?? null,
         password: hashPassword,
       });
 
+      const { id, email, fullName, role, lastName, firstName, photo } = newUser;
       const tokens = await this.tokensService.generateTokens(newUser);
-      await this.tokensService.saveRefreshToken(
-        newUser.id,
-        tokens.refreshToken,
-      );
+      await this.tokensService.saveRefreshToken(id, tokens.refreshToken);
 
       return {
         ...tokens,
-        user: newUser,
+        user: { id, email, fullName, role, lastName, firstName, photo },
       };
     } catch (error) {
       // eslint-disable-next-line no-console

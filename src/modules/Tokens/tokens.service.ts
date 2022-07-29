@@ -18,8 +18,8 @@ export class TokensService {
   async generateTokens(
     newUser: CreatedUserType,
   ): Promise<GenerateTokenReturnType> {
-    const { id, email, name, role } = newUser;
-    const payload: TokenInfoType = { id, email, name, role };
+    const { id, email, fullName, role } = newUser;
+    const payload: TokenInfoType = { id, email, fullName, role };
 
     return {
       accessToken: this.jwtService.sign(payload, { expiresIn: '10m' }),
@@ -40,10 +40,7 @@ export class TokensService {
         return tokensData.updateOne({ _id: userId });
       }
 
-      return await this.tokensModel.create({
-        _id: userId,
-        refreshToken,
-      });
+      return await this.tokensModel.create({ _id: userId, refreshToken });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('### Some error', error);

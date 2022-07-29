@@ -10,7 +10,13 @@ export class User {
   @Prop()
   id: string;
   @Prop()
-  name: string;
+  fullName: string;
+  @Prop()
+  firstName: string;
+  @Prop()
+  lastName: string;
+  @Prop()
+  photo: string | null;
   @Prop()
   role: UserRoles;
   @Prop()
