@@ -67,4 +67,13 @@ export class TokensService {
       HttpStatus.UNAUTHORIZED,
     );
   }
+
+  async createAndSaveTokens(
+    user: CreatedUserType,
+  ): Promise<GenerateTokenReturnType> {
+    const tokens = await this.generateTokens(user);
+    await this.saveRefreshToken(user.id, tokens.refreshToken);
+
+    return tokens;
+  }
 }

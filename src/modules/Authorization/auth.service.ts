@@ -4,7 +4,7 @@ import * as bcrypt from 'bcryptjs';
 import { UserRoles } from '../Todolists/types';
 import { EXCEPTIONS } from '../../common/constants/strings';
 import { RegistrationUserDtoType } from '../Users/types';
-import { RegistrationResponseType } from './types';
+import { AuthSuccessResponseType } from './types';
 import { TokensService } from '../Tokens/tokens.service';
 import { MessageResponseType } from '../../types/defaultTypes';
 
@@ -17,7 +17,7 @@ export class AuthService {
 
   async registration(
     userDto: RegistrationUserDtoType,
-  ): Promise<RegistrationResponseType> {
+  ): Promise<AuthSuccessResponseType> {
     const currentUser = await this.userService.getUserByEmail(userDto.email);
 
     if (currentUser) {
@@ -34,8 +34,7 @@ export class AuthService {
       });
 
       const { id, email, fullName, role, lastName, firstName, photo } = newUser;
-      const tokens = await this.tokensService.generateTokens(newUser);
-      await this.tokensService.saveRefreshToken(id, tokens.refreshToken);
+      const tokens = await this.tokensService.createAndSaveTokens(newUser);
 
       return {
         ...tokens,
@@ -45,6 +44,34 @@ export class AuthService {
       // eslint-disable-next-line no-console
       console.error('### Some error', error);
     }
+  }
+
+  async signIn(
+    userEmail: string,
+    password: string,
+  ): Promise<AuthSuccessResponseType> {
+    const user = await this.userService.getUserByEmail(userEmail);
+
+    if (!user) {
+      throw new HttpException(EXCEPTIONS.UserNotFound, HttpStatus.NOT_FOUND);
+    }
+
+    const passwordIsValid = await bcrypt.compare(password, user.password);
+
+    if (!passwordIsValid) {
+      throw new HttpException(
+        EXCEPTIONS.IncorrectPassword,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const { id, email, fullName, role, lastName, firstName, photo } = user;
+    const tokens = await this.tokensService.createAndSaveTokens(user);
+
+    return {
+      ...tokens,
+      user: { id, email, fullName, role, lastName, firstName, photo },
+    };
   }
 
   async signOut(refreshToken: string): Promise<MessageResponseType | void> {
