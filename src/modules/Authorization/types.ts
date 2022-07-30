@@ -10,6 +10,8 @@ export type TokenInfoType = Pick<
   'id' | 'email' | 'fullName' | 'role'
 >;
 
+export type ReturnedUserType = Omit<CreatedUserType, 'password'>;
+
 export type AuthSuccessResponseType = GenerateTokenReturnType & {
-  user: Omit<CreatedUserType, 'password'>;
+  user: ReturnedUserType;
 };

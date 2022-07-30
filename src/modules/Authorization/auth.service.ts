@@ -3,10 +3,11 @@ import { UserService } from '../Users/user.service';
 import * as bcrypt from 'bcryptjs';
 import { UserRoles } from '../Todolists/types';
 import { EXCEPTIONS } from '../../common/constants/strings';
-import { RegistrationUserDtoType } from '../Users/types';
+import { CreatedUserType, RegistrationUserDtoType } from '../Users/types';
 import { AuthSuccessResponseType } from './types';
 import { TokensService } from '../Tokens/tokens.service';
 import { MessageResponseType } from '../../types/defaultTypes';
+import { unauthorizedUser } from '../../common/errors';
 
 @Injectable()
 export class AuthService {
@@ -76,5 +77,30 @@ export class AuthService {
 
   async signOut(refreshToken: string): Promise<MessageResponseType | void> {
     return await this.tokensService.removeTokens(refreshToken);
+  }
+
+  async refresh(refreshToken: string): Promise<AuthSuccessResponseType> {
+    if (!refreshToken) {
+      unauthorizedUser();
+    }
+
+    const userId = await this.tokensService.validateRefreshToken(refreshToken);
+    const refreshTokenFromDb = await this.tokensService.findRefreshToken(
+      refreshToken,
+    );
+
+    if (!userId || !refreshTokenFromDb) {
+      unauthorizedUser();
+    }
+
+    const user = await this.userService.getUserById(userId);
+
+    const { id, email, fullName, role, lastName, firstName, photo } = user;
+    const tokens = await this.tokensService.generateTokens(user);
+
+    return {
+      ...tokens,
+      user: { id, email, fullName, role, lastName, firstName, photo },
+    };
   }
 }

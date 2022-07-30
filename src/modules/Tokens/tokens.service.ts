@@ -5,9 +5,9 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Tokens, TokensDocument } from '../../mongoDB/Tokens/schema';
-import { TokensDataType, TokensMessages } from './types';
+import { TokenPayloadType, TokensDataType } from './types';
 import { MessageResponseType } from '../../types/defaultTypes';
-import { EXCEPTIONS } from '../../common/constants/strings';
+import { EXCEPTIONS, Messeges } from '../../common/constants/strings';
 
 @Injectable()
 export class TokensService {
@@ -22,10 +22,11 @@ export class TokensService {
   ): Promise<GenerateTokenReturnType> {
     const { id, email, fullName, role } = newUser;
     const payload: TokenInfoType = { id, email, fullName, role };
+    const secret = process.env.SECRET_KEY;
 
     return {
-      accessToken: this.jwtService.sign(payload, { expiresIn: '10m' }),
-      refreshToken: this.jwtService.sign(payload, { expiresIn: '30d' }),
+      accessToken: this.jwtService.sign(payload, { expiresIn: '30s', secret }),
+      refreshToken: this.jwtService.sign(payload, { expiresIn: '30d', secret }),
     };
   }
 
@@ -58,7 +59,7 @@ export class TokensService {
 
     if (removedInfo.acknowledged && removedInfo.deletedCount > 0) {
       return {
-        message: TokensMessages.Removed,
+        message: Messeges.SignOutSuccess,
       };
     }
 
@@ -75,5 +76,29 @@ export class TokensService {
     await this.saveRefreshToken(user.id, tokens.refreshToken);
 
     return tokens;
+  }
+
+  async findRefreshToken(refreshToken: string): Promise<string | null> {
+    const tokensData = await this.tokensModel.findOne({ refreshToken });
+
+    if (!tokensData) {
+      return null;
+    }
+
+    return tokensData.refreshToken;
+  }
+
+  async validateRefreshToken(
+    refreshToken: string,
+  ): Promise<TokenPayloadType['id'] | null> {
+    try {
+      const payload: TokenPayloadType = this.jwtService.verify(refreshToken, {
+        secret: process.env.SECRET_KEY,
+      });
+
+      return payload.id;
+    } catch (e) {
+      return null;
+    }
   }
 }

@@ -1,10 +1,16 @@
 import { ObjectId } from 'mongoose';
+import { UserRoles } from '../Todolists/types';
 
 export type TokensDataType = {
   id: ObjectId;
   refreshToken: string;
 };
 
-export enum TokensMessages {
-  Removed = `Token has been removed`,
-}
+export type TokenPayloadType = {
+  email: string;
+  exp: number;
+  fullName: string;
+  iat: number;
+  id: ObjectId;
+  role: UserRoles;
+};

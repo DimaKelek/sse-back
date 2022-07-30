@@ -5,3 +5,9 @@ export enum EXCEPTIONS {
   UserNotFound = 'User not found',
   IncorrectPassword = 'Incorrect password',
 }
+
+export enum Messeges {
+  SignOutSuccess = 'You have successfully logged out',
+}
+
+export const BEARER = 'Bearer';

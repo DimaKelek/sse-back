@@ -1,17 +1,16 @@
 import {
   Body,
   Controller,
+  Headers,
   Post,
-  UnauthorizedException,
   UsePipes,
   ValidationPipe,
-  Headers,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreatedUserType, RegistrationUserDtoType } from '../Users/types';
 import { AuthSuccessResponseType } from './types';
-import { EXCEPTIONS } from '../../common/constants/strings';
 import { MessageResponseType } from '../../types/defaultTypes';
+import { authorizationHeaderHandler } from '../../common/helpers';
 
 @Controller('auth')
 @UsePipes(new ValidationPipe())
@@ -35,18 +34,20 @@ export class AuthController {
   }
 
   @Post('/signOut')
-  signOut(@Headers() headers): Promise<MessageResponseType | void> {
-    const authHeader: string = headers.authorization;
-    const splitHeader = authHeader.split(' ');
-    const bearer = splitHeader[0];
-    const token = splitHeader[1];
-
-    if (bearer !== 'Bearer' || !token) {
-      throw new UnauthorizedException({
-        message: EXCEPTIONS.UserIsNotAuthorized,
-      });
-    }
+  signOut(
+    @Headers('authorization') authorization: string,
+  ): Promise<MessageResponseType | void> {
+    const token = authorizationHeaderHandler(authorization);
 
     return this.authService.signOut(token);
+  }
+
+  @Post('/refresh')
+  refresh(
+    @Headers('authorization') authorization: string,
+  ): Promise<AuthSuccessResponseType> {
+    const token = authorizationHeaderHandler(authorization);
+
+    return this.authService.refresh(token);
   }
 }
