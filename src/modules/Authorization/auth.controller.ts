@@ -20,7 +20,7 @@ export class AuthController {
   @Post('/registration')
   registration(
     @Body() userDto: CreatedUserType,
-  ): Promise<AuthSuccessResponseType> {
+  ): Promise<MessageResponseType<string>> {
     return this.authService.registration(userDto);
   }
 

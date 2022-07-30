@@ -6,7 +6,9 @@ export enum EXCEPTIONS {
   IncorrectPassword = 'Incorrect password',
 }
 
-export enum Messeges {
+export enum Messages {
+  RegistrationFailed = 'Oh, something wrong(',
+  RegistrationSuccess = 'User has been created!',
   SignOutSuccess = 'You have successfully logged out',
 }
 

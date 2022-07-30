@@ -14,9 +14,15 @@ export class UserService {
   ) {}
 
   async createUser(userDto: RegistrationUserDtoType): Promise<User> {
-    const { firstName, lastName } = userDto;
+    const { firstName, lastName, email } = userDto;
+
+    const lowercaseEmail = email.toLowerCase();
     const fullName = `${firstName} ${lastName}`;
-    const newUser = new this.userModel({ ...userDto, fullName });
+    const newUser = new this.userModel({
+      ...userDto,
+      email: lowercaseEmail,
+      fullName,
+    });
 
     return newUser.save();
   }

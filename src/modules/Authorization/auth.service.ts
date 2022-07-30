@@ -2,8 +2,8 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserService } from '../Users/user.service';
 import * as bcrypt from 'bcryptjs';
 import { UserRoles } from '../Todolists/types';
-import { EXCEPTIONS } from '../../common/constants/strings';
-import { CreatedUserType, RegistrationUserDtoType } from '../Users/types';
+import { EXCEPTIONS, Messages } from '../../common/constants/strings';
+import { RegistrationUserDtoType } from '../Users/types';
 import { AuthSuccessResponseType } from './types';
 import { TokensService } from '../Tokens/tokens.service';
 import { MessageResponseType } from '../../types/defaultTypes';
@@ -18,7 +18,7 @@ export class AuthService {
 
   async registration(
     userDto: RegistrationUserDtoType,
-  ): Promise<AuthSuccessResponseType> {
+  ): Promise<MessageResponseType<string>> {
     const currentUser = await this.userService.getUserByEmail(userDto.email);
 
     if (currentUser) {
@@ -27,23 +27,22 @@ export class AuthService {
 
     try {
       const hashPassword = await bcrypt.hash(userDto.password, 5);
-      const newUser = (await this.userService.createUser({
+      await this.userService.createUser({
         ...userDto,
         role: userDto.role ?? UserRoles.User,
         photo: userDto.photo ?? null,
         password: hashPassword,
-      })) as CreatedUserType;
+      });
 
-      const { id, email, fullName, role, lastName, firstName, photo } = newUser;
-      const tokens = await this.tokensService.createAndSaveTokens(newUser);
+      return { message: Messages.RegistrationSuccess };
+    } catch (error) {
+      const currentError = error as Error;
+      const errorMessage = currentError.message;
 
       return {
-        ...tokens,
-        user: { id, email, fullName, role, lastName, firstName, photo },
+        data: errorMessage,
+        message: Messages.RegistrationFailed,
       };
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('### Some error', error);
     }
   }
 
