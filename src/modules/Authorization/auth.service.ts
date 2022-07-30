@@ -12,8 +12,8 @@ import { unauthorizedUser } from '../../common/errors';
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UserService,
-    private tokensService: TokensService,
+    private readonly userService: UserService,
+    private readonly tokensService: TokensService,
   ) {}
 
   async registration(

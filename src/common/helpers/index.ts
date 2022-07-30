@@ -1,9 +1,12 @@
-import { BEARER } from '../constants/strings';
-import { unauthorizedUser } from '../errors';
+import { BEARER, EXCEPTIONS } from '../constants/strings';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 export const authorizationHeaderHandler = (header?: string): string => {
   if (!header) {
-    unauthorizedUser();
+    throw new HttpException(
+      EXCEPTIONS.UserIsNotAuthorized,
+      HttpStatus.FORBIDDEN,
+    );
   }
 
   const splitHeader = header.split(' ');
@@ -11,7 +14,10 @@ export const authorizationHeaderHandler = (header?: string): string => {
   const token = splitHeader[1];
 
   if (bearer !== BEARER || !token) {
-    unauthorizedUser();
+    throw new HttpException(
+      EXCEPTIONS.UserIsNotAuthorized,
+      HttpStatus.FORBIDDEN,
+    );
   }
 
   return token;

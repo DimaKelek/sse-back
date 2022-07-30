@@ -8,15 +8,18 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { TodoListsService } from './todolists.service';
 import { TodoList } from '../../mongoDB/TodoList/schema';
 import { TodoListDtoType } from './types';
+import { JwtGuard } from '../Authorization/jwt.guard';
 
 @Controller('Todolists')
 @UsePipes(new ValidationPipe())
+@UseGuards(JwtGuard)
 export class TodoListsController {
   constructor(private readonly todoListService: TodoListsService) {}
 

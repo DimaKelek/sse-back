@@ -25,7 +25,7 @@ export class TokensService {
     const secret = process.env.SECRET_KEY;
 
     return {
-      accessToken: this.jwtService.sign(payload, { expiresIn: '30s', secret }),
+      accessToken: this.jwtService.sign(payload, { expiresIn: '15m', secret }),
       refreshToken: this.jwtService.sign(payload, { expiresIn: '30d', secret }),
     };
   }
