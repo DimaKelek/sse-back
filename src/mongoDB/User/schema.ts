@@ -8,8 +8,6 @@ export type UserDocument = User & Document;
 @Schema(defaultConfig)
 export class User {
   @Prop()
-  id: string;
-  @Prop()
   fullName: string;
   @Prop()
   firstName: string;

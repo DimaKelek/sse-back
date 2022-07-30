@@ -26,12 +26,12 @@ export class AuthService {
 
     try {
       const hashPassword = await bcrypt.hash(userDto.password, 5);
-      const newUser = await this.userService.createUser({
+      const newUser = (await this.userService.createUser({
         ...userDto,
         role: userDto.role ?? UserRoles.User,
         photo: userDto.photo ?? null,
         password: hashPassword,
-      });
+      })) as CreatedUserType;
 
       const { id, email, fullName, role, lastName, firstName, photo } = newUser;
       const tokens = await this.tokensService.createAndSaveTokens(newUser);
