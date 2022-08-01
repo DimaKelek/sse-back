@@ -35,7 +35,7 @@
     "no-debugger": "warn",
     "no-multiple-empty-lines": "error",
     "space-in-parens": "error",
-    "prettier/prettier": [2, {"bracketSpacing": true}],
+    "prettier/prettier": [2, {"bracketSpacing": true, "printWidth": 105}],
     "@typescript-eslint/ban-ts-ignore": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-unused-vars": "warn",
