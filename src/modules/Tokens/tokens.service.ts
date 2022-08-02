@@ -5,9 +5,8 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Tokens, TokensDocument } from '../../mongoDB/Tokens/schema';
-import { TokenPayloadType, TokensDataType } from './types';
-import { MessageResponseType } from '../../types/defaultTypes';
-import { EXCEPTIONS, Messages } from '../../common/constants/strings';
+import { TokenPayloadType, TokensDataType, ValidateTokenReturnType } from './types';
+import { MessageType, Responses } from '../../common/constants/strings';
 
 @Injectable()
 export class TokensService {
@@ -17,9 +16,7 @@ export class TokensService {
     private tokensModel: Model<TokensDocument>,
   ) {}
 
-  async generateTokens(
-    newUser: CreatedUserType,
-  ): Promise<GenerateTokenReturnType> {
+  async generateTokens(newUser: CreatedUserType): Promise<GenerateTokenReturnType> {
     const { id, email, fullName, role } = newUser;
     const payload: TokenInfoType = { id, email, fullName, role };
     const access_secret = process.env.ACCESS_SECRET_KEY;
@@ -37,17 +34,12 @@ export class TokensService {
     };
   }
 
-  async saveRefreshToken(
-    userId: ObjectId,
-    refreshToken: string,
-  ): Promise<TokensDataType> {
+  async saveRefreshToken(userId: ObjectId, refreshToken: string): Promise<TokensDataType> {
     try {
       const tokensData = await this.tokensModel.findById(userId);
 
       if (tokensData) {
-        tokensData.refreshToken = refreshToken;
-
-        return tokensData.updateOne({ _id: userId });
+        return this.tokensModel.findByIdAndUpdate(userId, { refreshToken });
       }
 
       return await this.tokensModel.create({ _id: userId, refreshToken });
@@ -57,28 +49,19 @@ export class TokensService {
     }
   }
 
-  async removeTokens(
-    refreshToken: string,
-  ): Promise<MessageResponseType | void> {
+  async removeTokens(refreshToken: string): Promise<MessageType> {
     const removedInfo = await this.tokensModel.deleteOne({
       refreshToken,
     });
 
     if (removedInfo.acknowledged && removedInfo.deletedCount > 0) {
-      return {
-        message: Messages.SignOutSuccess,
-      };
+      return Responses.success;
     }
 
-    throw new HttpException(
-      EXCEPTIONS.TokenIsNotFound,
-      HttpStatus.UNAUTHORIZED,
-    );
+    throw new HttpException(Responses.tokens.tokenNotFound, HttpStatus.UNAUTHORIZED);
   }
 
-  async createAndSaveTokens(
-    user: CreatedUserType,
-  ): Promise<GenerateTokenReturnType> {
+  async createAndSaveTokens(user: CreatedUserType): Promise<GenerateTokenReturnType> {
     const tokens = await this.generateTokens(user);
     await this.saveRefreshToken(user.id, tokens.refreshToken);
 
@@ -95,17 +78,19 @@ export class TokensService {
     return tokensData.refreshToken;
   }
 
-  async validateRefreshToken(
-    refreshToken: string,
-  ): Promise<TokenPayloadType['id'] | null> {
+  async validateToken(token: string, secret: string): Promise<ValidateTokenReturnType> {
     try {
-      const payload: TokenPayloadType = this.jwtService.verify(refreshToken, {
-        secret: process.env.REFRESH_SECRET_KEY,
+      const payload: TokenPayloadType = this.jwtService.verify(token, {
+        secret,
       });
 
-      return payload.id;
+      return { ...Responses.success, userId: payload.id };
     } catch (e) {
-      return null;
+      if (e.message === 'jwt expired') {
+        return { ...Responses.tokens.tokenExpired, userId: null };
+      } else {
+        return { ...Responses.unknown, userId: null };
+      }
     }
   }
 }

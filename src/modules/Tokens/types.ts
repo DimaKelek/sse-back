@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongoose';
 import { UserRoles } from '../Todolists/types';
+import { MessageType } from '../../common/constants/strings';
 
 export type TokensDataType = {
   id: ObjectId;
@@ -13,4 +14,8 @@ export type TokenPayloadType = {
   iat: number;
   id: ObjectId;
   role: UserRoles;
+};
+
+export type ValidateTokenReturnType = MessageType & {
+  userId?: ObjectId;
 };

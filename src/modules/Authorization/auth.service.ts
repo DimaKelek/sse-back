@@ -2,12 +2,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserService } from '../Users/user.service';
 import * as bcrypt from 'bcryptjs';
 import { UserRoles } from '../Todolists/types';
-import { EXCEPTIONS, Messages } from '../../common/constants/strings';
+import { EXCEPTIONS, MessageType, Responses } from '../../common/constants/strings';
 import { RegistrationUserDtoType } from '../Users/types';
-import { AuthSuccessResponseType } from './types';
+import { GenerateTokenReturnType } from './types';
 import { TokensService } from '../Tokens/tokens.service';
-import { MessageResponseType } from '../../types/defaultTypes';
-import { unauthorizedUser } from '../../common/errors';
+import { ResponseType } from '../../types/defaultTypes';
 
 @Injectable()
 export class AuthService {
@@ -16,9 +15,7 @@ export class AuthService {
     private readonly tokensService: TokensService,
   ) {}
 
-  async registration(
-    userDto: RegistrationUserDtoType,
-  ): Promise<MessageResponseType<string>> {
+  async registration(userDto: RegistrationUserDtoType): Promise<MessageType> {
     const currentUser = await this.userService.getUserByEmail(userDto.email);
 
     if (currentUser) {
@@ -34,72 +31,58 @@ export class AuthService {
         password: hashPassword,
       });
 
-      return { message: Messages.RegistrationSuccess };
+      return Responses.success;
     } catch (error) {
-      const currentError = error as Error;
-      const errorMessage = currentError.message;
-
-      return {
-        data: errorMessage,
-        message: Messages.RegistrationFailed,
-      };
+      return Responses.unknown;
     }
   }
 
-  async signIn(
-    userEmail: string,
-    password: string,
-  ): Promise<AuthSuccessResponseType> {
+  async signIn(userEmail: string, password: string): Promise<ResponseType<GenerateTokenReturnType>> {
     const user = await this.userService.getUserByEmail(userEmail);
 
     if (!user) {
-      throw new HttpException(EXCEPTIONS.UserNotFound, HttpStatus.NOT_FOUND);
+      throw new HttpException(Responses.auth.signIn.userNotFound, HttpStatus.NOT_FOUND);
     }
 
     const passwordIsValid = await bcrypt.compare(password, user.password);
 
     if (!passwordIsValid) {
-      throw new HttpException(
-        EXCEPTIONS.IncorrectPassword,
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException(Responses.auth.signIn.invalidPassword, HttpStatus.NOT_FOUND);
     }
 
-    const { id, email, fullName, role, lastName, firstName, photo } = user;
     const tokens = await this.tokensService.createAndSaveTokens(user);
 
     return {
-      ...tokens,
-      user: { id, email, fullName, role, lastName, firstName, photo },
+      ...Responses.success,
+      data: tokens,
     };
   }
 
-  async signOut(refreshToken: string): Promise<MessageResponseType | void> {
+  async signOut(refreshToken: string): Promise<MessageType> {
     return await this.tokensService.removeTokens(refreshToken);
   }
 
-  async refresh(refreshToken: string): Promise<AuthSuccessResponseType> {
+  async refresh(refreshToken: string): Promise<ResponseType<GenerateTokenReturnType>> {
     if (!refreshToken) {
-      unauthorizedUser();
+      throw new HttpException(Responses.tokens.headersNotFound, HttpStatus.NOT_FOUND);
     }
 
-    const userId = await this.tokensService.validateRefreshToken(refreshToken);
-    const refreshTokenFromDb = await this.tokensService.findRefreshToken(
+    const refreshTokenFromDb = await this.tokensService.findRefreshToken(refreshToken);
+    const { userId } = await this.tokensService.validateToken(
       refreshToken,
+      process.env.REFRESH_SECRET_KEY,
     );
 
     if (!userId || !refreshTokenFromDb) {
-      unauthorizedUser();
+      throw new HttpException(Responses.tokens.tokenNotFound, HttpStatus.NOT_FOUND);
     }
 
     const user = await this.userService.getUserById(userId);
-
-    const { id, email, fullName, role, lastName, firstName, photo } = user;
-    const tokens = await this.tokensService.generateTokens(user);
+    const tokens = await this.tokensService.createAndSaveTokens(user);
 
     return {
-      ...tokens,
-      user: { id, email, fullName, role, lastName, firstName, photo },
+      ...Responses.success,
+      data: tokens,
     };
   }
 }

@@ -1,51 +1,41 @@
-import {
-  Body,
-  Controller,
-  Headers,
-  Post,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Body, Controller, Headers, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreatedUserType, RegistrationUserDtoType } from '../Users/types';
-import { AuthSuccessResponseType } from './types';
-import { MessageResponseType } from '../../types/defaultTypes';
+import { AuthEndpoints, GenerateTokenReturnType } from './types';
+import { ResponseType } from '../../types/defaultTypes';
 import { authorizationHeaderHandler } from '../../common/helpers';
+import { MessageType } from '../../common/constants/strings';
 
 @Controller('auth')
 @UsePipes(new ValidationPipe())
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('/registration')
-  registration(
-    @Body() userDto: CreatedUserType,
-  ): Promise<MessageResponseType<string>> {
+  @Post(AuthEndpoints.Registration)
+  registration(@Body() userDto: CreatedUserType): Promise<MessageType> {
     return this.authService.registration(userDto);
   }
 
-  @Post('/signIn')
+  @Post(AuthEndpoints.SignIn)
   signIn(
     @Body() credentials: Pick<RegistrationUserDtoType, 'email' | 'password'>,
-  ): Promise<AuthSuccessResponseType> {
+  ): Promise<ResponseType<GenerateTokenReturnType>> {
     const { email, password } = credentials;
 
     return this.authService.signIn(email, password);
   }
 
-  @Post('/signOut')
-  signOut(
-    @Headers('authorization') authorization: string,
-  ): Promise<MessageResponseType | void> {
+  @Post(AuthEndpoints.SignOut)
+  signOut(@Headers('authorization') authorization: string): Promise<ResponseType | void> {
     const token = authorizationHeaderHandler(authorization);
 
     return this.authService.signOut(token);
   }
 
-  @Post('/refresh')
+  @Post(AuthEndpoints.Refresh)
   refresh(
     @Headers('authorization') authorization: string,
-  ): Promise<AuthSuccessResponseType> {
+  ): Promise<ResponseType<GenerateTokenReturnType>> {
     const token = authorizationHeaderHandler(authorization);
 
     return this.authService.refresh(token);
