@@ -18,7 +18,4 @@ export type TodoListDtoType = {
   title: string;
 };
 
-export type CreateTodoListDtoType = Omit<
-  TodoListDtoType,
-  'isLike' | 'completedTasks' | 'numberOfTasks'
->;
+export type CreateTodoListDtoType = Omit<TodoListDtoType, 'isLike' | 'completedTasks' | 'numberOfTasks'>;

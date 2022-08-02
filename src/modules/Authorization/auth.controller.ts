@@ -6,7 +6,7 @@ import { ResponseType } from '../../types/defaultTypes';
 import { authorizationHeaderHandler } from '../../common/helpers';
 import { MessageType } from '../../common/constants/strings';
 
-@Controller('auth')
+@Controller(AuthEndpoints.Main)
 @UsePipes(new ValidationPipe())
 export class AuthController {
   constructor(private authService: AuthService) {}

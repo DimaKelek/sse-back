@@ -14,3 +14,11 @@ export type CreatedUserType = RegistrationUserDtoType & {
   fullName: string;
   id: ObjectId;
 };
+
+export type MeDtoType = Omit<CreatedUserType, 'password'>;
+
+export enum UsersEndpoints {
+  GetUserById = '/list/:id',
+  Main = 'users',
+  Me = '/me',
+}

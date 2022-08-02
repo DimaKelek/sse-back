@@ -17,7 +17,7 @@ import { TodoList } from '../../mongoDB/TodoList/schema';
 import { TodoListDtoType } from './types';
 import { JwtGuard } from '../Authorization/jwt.guard';
 
-@Controller('Todolists')
+@Controller('todolists')
 @UsePipes(new ValidationPipe())
 @UseGuards(JwtGuard)
 export class TodoListsController {
@@ -45,10 +45,7 @@ export class TodoListsController {
   }
 
   @Put(':id')
-  updateTodoList(
-    @Body() todoListDto: TodoListDtoType,
-    @Param('id') id: string,
-  ): Promise<TodoList> {
+  updateTodoList(@Body() todoListDto: TodoListDtoType, @Param('id') id: string): Promise<TodoList> {
     return this.todoListService.updateTodoList(id, todoListDto);
   }
 }
