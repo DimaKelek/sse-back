@@ -1,5 +1,6 @@
 import { UserRoles } from '../Todolists/types';
 import { ObjectId } from 'mongoose';
+import { MessageType } from '../../common/constants/strings';
 
 export type RegistrationUserDtoType = {
   email: string;
@@ -15,7 +16,9 @@ export type CreatedUserType = RegistrationUserDtoType & {
   id: ObjectId;
 };
 
-export type MeDtoType = Omit<CreatedUserType, 'password'>;
+export type MeDtoType = MessageType & {
+  data: Omit<CreatedUserType, 'password'>;
+};
 
 export enum UsersEndpoints {
   GetUserById = '/list/:id',

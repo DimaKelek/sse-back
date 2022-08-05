@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserService } from '../Users/user.service';
 import * as bcrypt from 'bcryptjs';
 import { UserRoles } from '../Todolists/types';
-import { EXCEPTIONS, MessageType, Responses } from '../../common/constants/strings';
+import { MessageType, Responses } from '../../common/constants/strings';
 import { RegistrationUserDtoType } from '../Users/types';
 import { GenerateTokenReturnType } from './types';
 import { TokensService } from '../Tokens/tokens.service';
@@ -19,7 +19,7 @@ export class AuthService {
     const currentUser = await this.userService.getUserByEmail(userDto.email);
 
     if (currentUser) {
-      throw new HttpException(EXCEPTIONS.UserExist, HttpStatus.BAD_REQUEST);
+      throw new HttpException(Responses.auth.signUp.userExist, HttpStatus.BAD_REQUEST);
     }
 
     try {

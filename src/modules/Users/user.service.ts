@@ -49,11 +49,14 @@ export class UserService {
     }
 
     if (userId) {
-      const tokensData = await this.tokensModel.findById(userId);
+      const tokensData = await this.tokensModel.find(userId);
 
       if (tokensData) {
-        const { password, ...restData } = await this.getUserById(userId);
-        return { ...restData };
+        const { id, fullName, firstName, lastName, email, photo, role } = await this.getUserById(userId);
+        return {
+          ...Responses.success,
+          data: { id, fullName, firstName, lastName, email, photo, role },
+        };
       }
     }
 
