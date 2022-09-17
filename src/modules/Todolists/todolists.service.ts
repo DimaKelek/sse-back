@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { TodoListDtoType } from './types';
+import { CreateTodoListDtoType, TodoListDtoType } from './types';
 import { InjectModel } from '@nestjs/mongoose';
-import { TodoList, TodoListDocument } from '../mongoDB/TodoList/schema';
+import { TodoList, TodoListDocument } from '../../mongoDB/TodoList/schema';
 import { Model } from 'mongoose';
 
 @Injectable()
@@ -18,9 +18,14 @@ export class TodoListsService {
     return this.todoListModel.findById(id);
   }
 
-  async createNewTodoList(todoListDto: TodoListDtoType): Promise<TodoList> {
+  async createNewTodoList(
+    todoListDto: CreateTodoListDtoType,
+  ): Promise<TodoList> {
     const newTodoList: TodoListDtoType = {
       ...todoListDto,
+      isLike: false,
+      numberOfTasks: 0,
+      completedTasks: 0,
       image: todoListDto.image ?? null,
       description: todoListDto.description ?? null,
     };

@@ -1,0 +1,16 @@
+import { ObjectId } from 'mongoose';
+import { UserRoles } from '../Todolists/types';
+
+export type TokensDataType = {
+  id: ObjectId;
+  refreshToken: string;
+};
+
+export type TokenPayloadType = {
+  email: string;
+  exp: number;
+  fullName: string;
+  iat: number;
+  id: ObjectId;
+  role: UserRoles;
+};

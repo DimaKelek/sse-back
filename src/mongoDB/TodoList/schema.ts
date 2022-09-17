@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { CreatorType } from '../../todolists/types';
+import { CreatorType } from '../../modules/Todolists/types';
 import { Document, Types } from 'mongoose';
 import { defaultConfig } from '../defaultConfig';
 
