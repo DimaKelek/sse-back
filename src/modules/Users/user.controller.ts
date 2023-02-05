@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Param,
@@ -10,18 +11,17 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreatedUserType, RegistrationUserDtoType } from './types';
+import { CreatedUserType, MeDtoType, RegistrationUserDtoType, UsersEndpoints } from './types';
+import { authorizationHeaderHandler } from '../../common/helpers';
 
-@Controller('users')
+@Controller(UsersEndpoints.Main)
 @UsePipes(new ValidationPipe())
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  createUser(
-    @Body() userDto: RegistrationUserDtoType,
-  ): Promise<RegistrationUserDtoType> {
+  createUser(@Body() userDto: RegistrationUserDtoType): Promise<RegistrationUserDtoType> {
     return this.userService.createUser(userDto);
   }
 
@@ -33,11 +33,17 @@ export class UserController {
     return this.userService.getUserByEmail(emailDto.email);
   }
 
-  @Get(':id')
+  @Get(UsersEndpoints.GetUserById)
   @HttpCode(HttpStatus.OK)
-  getUserById(
-    @Param('id') id: CreatedUserType['id'],
-  ): Promise<CreatedUserType | undefined> {
+  getUserById(@Param('id') id: CreatedUserType['id']): Promise<CreatedUserType | undefined> {
     return this.userService.getUserById(id);
+  }
+
+  @Get(UsersEndpoints.Me)
+  @HttpCode(HttpStatus.OK)
+  getMyData(@Headers('authorization') authorization: string): Promise<MeDtoType> {
+    const accessToken = authorizationHeaderHandler(authorization);
+
+    return this.userService.getMyData(accessToken);
   }
 }

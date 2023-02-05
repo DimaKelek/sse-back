@@ -5,13 +5,12 @@ export type GenerateTokenReturnType = {
   refreshToken: string;
 };
 
-export type TokenInfoType = Pick<
-  CreatedUserType,
-  'id' | 'email' | 'fullName' | 'role'
->;
+export type TokenInfoType = Pick<CreatedUserType, 'id' | 'email' | 'fullName' | 'role'>;
 
-export type ReturnedUserType = Omit<CreatedUserType, 'password'>;
-
-export type AuthSuccessResponseType = GenerateTokenReturnType & {
-  user: ReturnedUserType;
-};
+export enum AuthEndpoints {
+  Main = 'auth',
+  Refresh = '/refresh',
+  Registration = '/registration',
+  SignIn = '/signIn',
+  SignOut = '/signOut',
+}

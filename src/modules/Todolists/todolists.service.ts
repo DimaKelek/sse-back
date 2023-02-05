@@ -6,9 +6,7 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class TodoListsService {
-  constructor(
-    @InjectModel(TodoList.name) private todoListModel: Model<TodoListDocument>,
-  ) {}
+  constructor(@InjectModel(TodoList.name) private todoListModel: Model<TodoListDocument>) {}
 
   async getAllTodoLists(): Promise<TodoList[]> {
     return this.todoListModel.find().exec();
@@ -18,9 +16,7 @@ export class TodoListsService {
     return this.todoListModel.findById(id);
   }
 
-  async createNewTodoList(
-    todoListDto: CreateTodoListDtoType,
-  ): Promise<TodoList> {
+  async createNewTodoList(todoListDto: CreateTodoListDtoType): Promise<TodoList> {
     const newTodoList: TodoListDtoType = {
       ...todoListDto,
       isLike: false,
@@ -39,10 +35,7 @@ export class TodoListsService {
     return this.todoListModel.findByIdAndRemove(id);
   }
 
-  async updateTodoList(
-    id: string,
-    todoListDto: TodoListDtoType,
-  ): Promise<TodoList> {
+  async updateTodoList(id: string, todoListDto: TodoListDtoType): Promise<TodoList> {
     return this.todoListModel.findByIdAndUpdate(id, todoListDto, { new: true });
   }
 }
