@@ -8,10 +8,8 @@ module.exports = {
   useTabs: false,
   endOfLine: 'auto',
   semi: true,
-  importOrder: [
-    '^(.*)$',
-    '^[./]',
-  ],
+  importOrder: [],
   importOrderSeparation: true,
   importOrderSortSpecifiers: true,
+  printWidth: 100
 };
